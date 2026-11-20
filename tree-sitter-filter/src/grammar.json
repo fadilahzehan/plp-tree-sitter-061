@@ -24,6 +24,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "not_expression"
+        },
+        {
+          "type": "SYMBOL",
           "name": "parenthesized"
         }
       ]
@@ -69,7 +73,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "string"
+              "name": "_value"
             },
             {
               "type": "SYMBOL",
@@ -147,6 +151,53 @@
         {
           "type": "STRING",
           "value": ")"
+        }
+      ]
+    },
+    "not_expression": {
+      "type": "PREC",
+      "value": 3,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "not"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_expr"
+          }
+        ]
+      }
+    },
+    "_value": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "string"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "number"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "boolean"
+        }
+      ]
+    },
+    "boolean": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "true"
+        },
+        {
+          "type": "STRING",
+          "value": "false"
         }
       ]
     }
