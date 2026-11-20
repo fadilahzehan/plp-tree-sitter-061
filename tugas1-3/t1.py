@@ -4,10 +4,9 @@ from tree_sitter import Language, Parser
 parser = Parser(Language(tspython.language()))
 
 kode = b"""
-if x > 5:
-    print("besar")
-else:
-    print("kecil")
+class Anjing:
+    def bersuara(self):
+        return "guk"
 """
 tree = parser.parse(kode)
 print(tree.root_node)
