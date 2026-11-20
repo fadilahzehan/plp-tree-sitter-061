@@ -1,24 +1,10 @@
 {
   "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "filter",
-  "word": "identifier",
   "rules": {
     "query": {
       "type": "SYMBOL",
-      "name": "_expr"
-    },
-    "_expr": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "comparison"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "and_expression"
-        }
-      ]
+      "name": "comparison"
     },
     "comparison": {
       "type": "SEQ",
@@ -68,23 +54,6 @@
               "name": "number"
             }
           ]
-        }
-      ]
-    },
-    "and_expression": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
-        },
-        {
-          "type": "STRING",
-          "value": "and"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
         }
       ]
     },
