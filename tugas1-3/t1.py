@@ -10,3 +10,7 @@ class Anjing:
 """
 tree = parser.parse(kode)
 print(tree.root_node)
+
+fn = tree.root_node.children[0]
+for i, c in enumerate(fn.children):
+    print(i, repr(c.type), "named" if c.is_named else "anonim")
