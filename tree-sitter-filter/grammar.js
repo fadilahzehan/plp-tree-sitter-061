@@ -22,6 +22,7 @@ module.exports = grammar({
     number: $ => /\d+(\.\d+)?/,
 
     _expr: $ => choice($.comparison, $.and_expression, $.or_expression),
-    or_expression: $ => seq($._expr, 'or', $._expr),
+    or_expression: $ => prec.left(1, seq($._expr, 'or', $._expr)),
+    and_expression: $ => prec.left(2, seq($._expr, 'and', $._expr)),
   }
 });
