@@ -7,11 +7,11 @@
 #endif
 
 #define LANGUAGE_VERSION 15
-#define STATE_COUNT 7
+#define STATE_COUNT 11
 #define LARGE_STATE_COUNT 2
-#define SYMBOL_COUNT 12
+#define SYMBOL_COUNT 17
 #define ALIAS_COUNT 0
-#define TOKEN_COUNT 10
+#define TOKEN_COUNT 12
 #define EXTERNAL_TOKEN_COUNT 0
 #define FIELD_COUNT 0
 #define MAX_ALIAS_SEQUENCE_LENGTH 3
@@ -20,52 +20,71 @@
 #define SUPERTYPE_COUNT 0
 
 enum ts_symbol_identifiers {
-  anon_sym_EQ = 1,
-  anon_sym_BANG_EQ = 2,
-  anon_sym_GT = 3,
-  anon_sym_LT = 4,
-  anon_sym_GT_EQ = 5,
-  anon_sym_LT_EQ = 6,
-  sym_identifier = 7,
-  sym_string = 8,
-  sym_number = 9,
-  sym_query = 10,
-  sym_comparison = 11,
+  sym_identifier = 1,
+  anon_sym_EQ = 2,
+  anon_sym_BANG_EQ = 3,
+  anon_sym_GT = 4,
+  anon_sym_LT = 5,
+  anon_sym_GT_EQ = 6,
+  anon_sym_LT_EQ = 7,
+  anon_sym_and = 8,
+  sym_string = 9,
+  sym_number = 10,
+  anon_sym_or = 11,
+  sym_query = 12,
+  sym__expr = 13,
+  sym_comparison = 14,
+  sym_and_expression = 15,
+  sym_or_expression = 16,
 };
 
 static const char * const ts_symbol_names[] = {
   [ts_builtin_sym_end] = "end",
+  [sym_identifier] = "identifier",
   [anon_sym_EQ] = "=",
   [anon_sym_BANG_EQ] = "!=",
   [anon_sym_GT] = ">",
   [anon_sym_LT] = "<",
   [anon_sym_GT_EQ] = ">=",
   [anon_sym_LT_EQ] = "<=",
-  [sym_identifier] = "identifier",
+  [anon_sym_and] = "and",
   [sym_string] = "string",
   [sym_number] = "number",
+  [anon_sym_or] = "or",
   [sym_query] = "query",
+  [sym__expr] = "_expr",
   [sym_comparison] = "comparison",
+  [sym_and_expression] = "and_expression",
+  [sym_or_expression] = "or_expression",
 };
 
 static const TSSymbol ts_symbol_map[] = {
   [ts_builtin_sym_end] = ts_builtin_sym_end,
+  [sym_identifier] = sym_identifier,
   [anon_sym_EQ] = anon_sym_EQ,
   [anon_sym_BANG_EQ] = anon_sym_BANG_EQ,
   [anon_sym_GT] = anon_sym_GT,
   [anon_sym_LT] = anon_sym_LT,
   [anon_sym_GT_EQ] = anon_sym_GT_EQ,
   [anon_sym_LT_EQ] = anon_sym_LT_EQ,
-  [sym_identifier] = sym_identifier,
+  [anon_sym_and] = anon_sym_and,
   [sym_string] = sym_string,
   [sym_number] = sym_number,
+  [anon_sym_or] = anon_sym_or,
   [sym_query] = sym_query,
+  [sym__expr] = sym__expr,
   [sym_comparison] = sym_comparison,
+  [sym_and_expression] = sym_and_expression,
+  [sym_or_expression] = sym_or_expression,
 };
 
 static const TSSymbolMetadata ts_symbol_metadata[] = {
   [ts_builtin_sym_end] = {
     .visible = false,
+    .named = true,
+  },
+  [sym_identifier] = {
+    .visible = true,
     .named = true,
   },
   [anon_sym_EQ] = {
@@ -92,9 +111,9 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = false,
   },
-  [sym_identifier] = {
+  [anon_sym_and] = {
     .visible = true,
-    .named = true,
+    .named = false,
   },
   [sym_string] = {
     .visible = true,
@@ -104,11 +123,27 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = true,
   },
+  [anon_sym_or] = {
+    .visible = true,
+    .named = false,
+  },
   [sym_query] = {
     .visible = true,
     .named = true,
   },
+  [sym__expr] = {
+    .visible = false,
+    .named = true,
+  },
   [sym_comparison] = {
+    .visible = true,
+    .named = true,
+  },
+  [sym_and_expression] = {
+    .visible = true,
+    .named = true,
+  },
+  [sym_or_expression] = {
     .visible = true,
     .named = true,
   },
@@ -130,6 +165,10 @@ static const TSStateId ts_primary_state_ids[STATE_COUNT] = {
   [4] = 4,
   [5] = 5,
   [6] = 6,
+  [7] = 7,
+  [8] = 8,
+  [9] = 9,
+  [10] = 10,
 };
 
 static bool ts_lex(TSLexer *lexer, TSStateId state) {
@@ -208,6 +247,36 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
   }
 }
 
+static bool ts_lex_keywords(TSLexer *lexer, TSStateId state) {
+  START_LEXER();
+  eof = lexer->eof(lexer);
+  switch (state) {
+    case 0:
+      if (lookahead == 'a') ADVANCE(1);
+      if (lookahead == 'o') ADVANCE(2);
+      if (('\t' <= lookahead && lookahead <= '\r') ||
+          lookahead == ' ') SKIP(0);
+      END_STATE();
+    case 1:
+      if (lookahead == 'n') ADVANCE(3);
+      END_STATE();
+    case 2:
+      if (lookahead == 'r') ADVANCE(4);
+      END_STATE();
+    case 3:
+      if (lookahead == 'd') ADVANCE(5);
+      END_STATE();
+    case 4:
+      ACCEPT_TOKEN(anon_sym_or);
+      END_STATE();
+    case 5:
+      ACCEPT_TOKEN(anon_sym_and);
+      END_STATE();
+    default:
+      return false;
+  }
+}
+
 static const TSLexerMode ts_lex_modes[STATE_COUNT] = {
   [0] = {.lex_state = 0},
   [1] = {.lex_state = 0},
@@ -216,24 +285,33 @@ static const TSLexerMode ts_lex_modes[STATE_COUNT] = {
   [4] = {.lex_state = 0},
   [5] = {.lex_state = 0},
   [6] = {.lex_state = 0},
+  [7] = {.lex_state = 0},
+  [8] = {.lex_state = 0},
+  [9] = {.lex_state = 0},
+  [10] = {.lex_state = 0},
 };
 
 static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
   [STATE(0)] = {
     [ts_builtin_sym_end] = ACTIONS(1),
+    [sym_identifier] = ACTIONS(1),
     [anon_sym_EQ] = ACTIONS(1),
     [anon_sym_BANG_EQ] = ACTIONS(1),
     [anon_sym_GT] = ACTIONS(1),
     [anon_sym_LT] = ACTIONS(1),
     [anon_sym_GT_EQ] = ACTIONS(1),
     [anon_sym_LT_EQ] = ACTIONS(1),
-    [sym_identifier] = ACTIONS(1),
+    [anon_sym_and] = ACTIONS(1),
     [sym_string] = ACTIONS(1),
     [sym_number] = ACTIONS(1),
+    [anon_sym_or] = ACTIONS(1),
   },
   [STATE(1)] = {
-    [sym_query] = STATE(4),
+    [sym_query] = STATE(10),
+    [sym__expr] = STATE(5),
     [sym_comparison] = STATE(5),
+    [sym_and_expression] = STATE(5),
+    [sym_or_expression] = STATE(5),
     [sym_identifier] = ACTIONS(3),
   },
 };
@@ -248,39 +326,80 @@ static const uint16_t ts_small_parse_table[] = {
       anon_sym_BANG_EQ,
       anon_sym_GT_EQ,
       anon_sym_LT_EQ,
-  [11] = 1,
-    ACTIONS(9), 2,
+  [11] = 2,
+    ACTIONS(3), 1,
+      sym_identifier,
+    STATE(7), 4,
+      sym__expr,
+      sym_comparison,
+      sym_and_expression,
+      sym_or_expression,
+  [21] = 2,
+    ACTIONS(3), 1,
+      sym_identifier,
+    STATE(8), 4,
+      sym__expr,
+      sym_comparison,
+      sym_and_expression,
+      sym_or_expression,
+  [31] = 3,
+    ACTIONS(9), 1,
+      ts_builtin_sym_end,
+    ACTIONS(11), 1,
+      anon_sym_and,
+    ACTIONS(13), 1,
+      anon_sym_or,
+  [41] = 1,
+    ACTIONS(15), 3,
+      ts_builtin_sym_end,
+      anon_sym_and,
+      anon_sym_or,
+  [47] = 1,
+    ACTIONS(17), 3,
+      ts_builtin_sym_end,
+      anon_sym_and,
+      anon_sym_or,
+  [53] = 2,
+    ACTIONS(11), 1,
+      anon_sym_and,
+    ACTIONS(19), 2,
+      ts_builtin_sym_end,
+      anon_sym_or,
+  [61] = 1,
+    ACTIONS(21), 2,
       sym_string,
       sym_number,
-  [16] = 1,
-    ACTIONS(11), 1,
-      ts_builtin_sym_end,
-  [20] = 1,
-    ACTIONS(13), 1,
-      ts_builtin_sym_end,
-  [24] = 1,
-    ACTIONS(15), 1,
+  [66] = 1,
+    ACTIONS(23), 1,
       ts_builtin_sym_end,
 };
 
 static const uint32_t ts_small_parse_table_map[] = {
   [SMALL_STATE(2)] = 0,
   [SMALL_STATE(3)] = 11,
-  [SMALL_STATE(4)] = 16,
-  [SMALL_STATE(5)] = 20,
-  [SMALL_STATE(6)] = 24,
+  [SMALL_STATE(4)] = 21,
+  [SMALL_STATE(5)] = 31,
+  [SMALL_STATE(6)] = 41,
+  [SMALL_STATE(7)] = 47,
+  [SMALL_STATE(8)] = 53,
+  [SMALL_STATE(9)] = 61,
+  [SMALL_STATE(10)] = 66,
 };
 
 static const TSParseActionEntry ts_parse_actions[] = {
   [0] = {.entry = {.count = 0, .reusable = false}},
   [1] = {.entry = {.count = 1, .reusable = false}}, RECOVER(),
   [3] = {.entry = {.count = 1, .reusable = true}}, SHIFT(2),
-  [5] = {.entry = {.count = 1, .reusable = true}}, SHIFT(3),
-  [7] = {.entry = {.count = 1, .reusable = false}}, SHIFT(3),
-  [9] = {.entry = {.count = 1, .reusable = true}}, SHIFT(6),
-  [11] = {.entry = {.count = 1, .reusable = true}},  ACCEPT_INPUT(),
-  [13] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_query, 1, 0, 0),
+  [5] = {.entry = {.count = 1, .reusable = true}}, SHIFT(9),
+  [7] = {.entry = {.count = 1, .reusable = false}}, SHIFT(9),
+  [9] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_query, 1, 0, 0),
+  [11] = {.entry = {.count = 1, .reusable = true}}, SHIFT(3),
+  [13] = {.entry = {.count = 1, .reusable = true}}, SHIFT(4),
   [15] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_comparison, 3, 0, 0),
+  [17] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_and_expression, 3, 0, 0),
+  [19] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_or_expression, 3, 0, 0),
+  [21] = {.entry = {.count = 1, .reusable = true}}, SHIFT(6),
+  [23] = {.entry = {.count = 1, .reusable = true}},  ACCEPT_INPUT(),
 };
 
 #ifdef __cplusplus
@@ -318,6 +437,8 @@ TS_PUBLIC const TSLanguage *tree_sitter_filter(void) {
     .alias_sequences = &ts_alias_sequences[0][0],
     .lex_modes = (const void*)ts_lex_modes,
     .lex_fn = ts_lex,
+    .keyword_lex_fn = ts_lex_keywords,
+    .keyword_capture_token = sym_identifier,
     .primary_state_ids = ts_primary_state_ids,
     .name = "filter",
     .max_reserved_word_set_size = 0,
