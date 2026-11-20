@@ -41,5 +41,19 @@ module.exports = grammar({
     or_expression: $ => prec.left(1, seq(field('left', $._expr), 'or', field('right', $._expr))),
     and_expression: $ => prec.left(2, seq(field('left', $._expr), 'and', field('right', $._expr))),
     not_expression: $ => prec(3, seq('not', field('operand', $._expr))),
+
+    _expr: $ => choice($.comparison, $.and_expression, $.or_expression, $.not_expression, $.parenthesized, $.in_expression, $.contains_expression),
+
+in_expression: $ => seq(
+  field('field', $.identifier),
+  'in',
+  field('values', seq('(', $._value, repeat(seq(',', $._value)), ')')),
+),
+
+contains_expression: $ => seq(
+  field('field', $.identifier),
+  'contains',
+  field('value', $.string),
+),
   }
 });
