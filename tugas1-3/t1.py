@@ -3,6 +3,11 @@ from tree_sitter import Language, Parser
 
 parser = Parser(Language(tspython.language()))
 
-kode = b"def sapa(nama):\n    return nama\n"
+kode = b"""
+if x > 5:
+    print("besar")
+else:
+    print("kecil")
+"""
 tree = parser.parse(kode)
 print(tree.root_node)
